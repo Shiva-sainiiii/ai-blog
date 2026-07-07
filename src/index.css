@@ -1,0 +1,120 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ---------- Light mode overrides ---------- */
+html.light body {
+  background-color: #F5F2EA;
+  color: #1A2E2B;
+}
+
+html.light .glass {
+  background: rgba(255, 255, 255, 0.55);
+  border-color: rgba(26, 46, 43, 0.1);
+}
+
+html.light .glass-strong {
+  background: rgba(255, 255, 255, 0.75);
+  border-color: rgba(26, 46, 43, 0.12);
+}
+
+html.light .text-parchment {
+  color: #1A2E2B;
+}
+
+html.light .text-parchment-dim,
+html.light .text-parchment\/70,
+html.light .text-parchment\/60,
+html.light .text-parchment\/50 {
+  color: #4A5D59;
+}
+
+html.light .bg-ink {
+  background-color: #F5F2EA;
+}
+
+/* ---------- Reusable component layer ---------- */
+@layer components {
+  .glass {
+    @apply bg-white/[0.04] backdrop-blur-xl border border-white/10 shadow-glass;
+  }
+
+  .glass-strong {
+    @apply bg-white/[0.07] backdrop-blur-2xl border border-white/[0.14] shadow-glass-lg;
+  }
+
+  .btn-signal {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-signal px-6 py-2.5
+           font-body font-medium text-ink transition-all duration-200
+           hover:bg-signal-bright hover:shadow-[0_0_24px_rgba(63,191,166,0.4)]
+           active:scale-95 disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-parchment/20
+           px-6 py-2.5 font-body font-medium text-parchment transition-all duration-200
+           hover:border-signal/50 hover:bg-signal/10 active:scale-95;
+  }
+
+  .input-field {
+    @apply w-full rounded-xl bg-white/[0.04] border border-white/10 px-4 py-3
+           text-parchment placeholder:text-parchment/40 outline-none transition-colors
+           focus:border-signal/50 focus:bg-white/[0.06];
+  }
+
+  .ai-strip {
+    @apply border-l-2 border-clay pl-3;
+  }
+}
+
+/* Custom scrollbar to match the editorial tone */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(63, 191, 166, 0.3);
+  border-radius: 999px;
+}
+
+/* Prose styling for blog content (markdown rendered as HTML) */
+.prose-blog h2 {
+  @apply font-display text-2xl md:text-3xl font-semibold mt-10 mb-4 text-parchment;
+}
+.prose-blog h3 {
+  @apply font-display text-xl md:text-2xl font-semibold mt-8 mb-3 text-parchment;
+}
+.prose-blog p {
+  @apply text-parchment/85 leading-relaxed mb-5 text-[1.05rem];
+}
+.prose-blog ul, .prose-blog ol {
+  @apply text-parchment/85 leading-relaxed mb-5 pl-6 space-y-2;
+}
+.prose-blog ul { @apply list-disc; }
+.prose-blog ol { @apply list-decimal; }
+.prose-blog strong { @apply text-parchment font-semibold; }
+.prose-blog code {
+  @apply font-mono text-sm bg-white/10 px-1.5 py-0.5 rounded text-signal-bright;
+}
+.prose-blog blockquote {
+  @apply border-l-2 border-signal/50 pl-4 italic text-parchment/70 my-6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

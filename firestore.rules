@@ -1,0 +1,32 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // NOTE: Admin write-access here is enforced only by "signed in", because
+    // Security Rules cannot see your VITE_ADMIN_EMAILS allowlist. For real
+    // protection, set a custom claim (admin: true) on your admin's Firebase
+    // user via the Admin SDK, then check request.auth.token.admin == true
+    // below instead of just isSignedIn().
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.admin == true;
+    }
+
+    match /blogs/{blogId} {
+      allow read: if true;
+      // Swap isSignedIn() for isAdmin() once you've set the custom claim.
+      allow create, update, delete: if isSignedIn();
+
+      match /comments/{commentId} {
+        allow read: if true;
+        allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid;
+        allow delete: if isSignedIn() &&
+          (resource.data.authorId == request.auth.uid || isAdmin());
+        allow update: if false;
+      }
+    }
+  }
+}
