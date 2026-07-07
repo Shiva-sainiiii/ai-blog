@@ -4,6 +4,14 @@
     "api/generate-blog.js": {
       "maxDuration": 30,
       "memory": 1024
+    },
+    "api/upload-image.js": {
+      "maxDuration": 30,
+      "memory": 1024
+    },
+    "api/delete-image.js": {
+      "maxDuration": 15,
+      "memory": 1024
     }
   },
   "rewrites": [

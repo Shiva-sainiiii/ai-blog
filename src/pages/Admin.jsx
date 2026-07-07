@@ -6,7 +6,7 @@ import {
   updateBlog,
   deleteBlog,
 } from '../firebase/blogs.js';
-import { uploadBlogImage } from '../firebase/storage.js';
+import { uploadBlogImage, deleteBlogImage } from '../utils/cloudinary.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import AIGeneratePanel from '../components/AIGeneratePanel.jsx';
 
@@ -17,6 +17,7 @@ const emptyForm = {
   tags: '',
   aiGenerated: false,
   imageUrl: '',
+  imagePublicId: '',
 };
 
 export default function Admin() {
@@ -82,16 +83,18 @@ export default function Admin() {
       tags: (blog.tags || []).join(', '),
       aiGenerated: !!blog.aiGenerated,
       imageUrl: blog.imageUrl || '',
+      imagePublicId: blog.imagePublicId || '',
     });
     setImagePreview(blog.imageUrl || '');
     setImageFile(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id, imagePublicId) => {
     if (!confirm('Delete this post permanently?')) return;
     try {
       await deleteBlog(id);
+      if (imagePublicId) await deleteBlogImage(imagePublicId);
       setBlogs((prev) => prev.filter((b) => b.id !== id));
       toast.success('Post deleted');
     } catch (err) {
@@ -109,10 +112,17 @@ export default function Admin() {
     setSaving(true);
     try {
       let imageUrl = form.imageUrl;
+      let imagePublicId = form.imagePublicId;
+
       if (imageFile) {
         const slug = form.title.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 40);
-        const { url } = await uploadBlogImage(imageFile, slug);
+        // Replacing an existing image on edit — clean up the old one after
+        // the new upload succeeds, so we never end up with neither.
+        const oldPublicId = editingId ? form.imagePublicId : null;
+        const { url, publicId } = await uploadBlogImage(imageFile, slug);
         imageUrl = url;
+        imagePublicId = publicId;
+        if (oldPublicId) await deleteBlogImage(oldPublicId);
       }
 
       const payload = {
@@ -122,6 +132,7 @@ export default function Admin() {
         tags: form.tags.split(',').map((t) => t.trim()).filter(Boolean),
         aiGenerated: form.aiGenerated,
         imageUrl: imageUrl || null,
+        imagePublicId: imagePublicId || null,
         authorName: user?.displayName || 'Admin',
       };
 
@@ -137,7 +148,7 @@ export default function Admin() {
       loadBlogs();
     } catch (err) {
       console.error(err);
-      toast.error('Failed to save post');
+      toast.error(err.message || 'Failed to save post');
     } finally {
       setSaving(false);
     }
@@ -267,7 +278,7 @@ export default function Admin() {
                     Edit
                   </button>
                   <button
-                    onClick={() => handleDelete(blog.id)}
+                    onClick={() => handleDelete(blog.id, blog.imagePublicId)}
                     className="!py-1.5 !px-4 text-sm rounded-full border border-clay/40 text-clay-bright hover:bg-clay/10 transition-colors"
                   >
                     Delete

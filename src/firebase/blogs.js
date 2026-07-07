@@ -44,6 +44,7 @@ export async function createBlog(blog) {
     excerpt: blog.excerpt,
     content: blog.content,
     imageUrl: blog.imageUrl || null,
+    imagePublicId: blog.imagePublicId || null,
     tags: blog.tags || [],
     aiGenerated: !!blog.aiGenerated,
     likes: 0,
