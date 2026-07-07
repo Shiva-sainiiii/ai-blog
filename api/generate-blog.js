@@ -6,7 +6,7 @@
 const axios = require('axios');
 
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const MODEL = 'mistralai/mistral-7b-instruct';
+const MODEL = 'nvidia/nemotron-3-super-120b-a12b:free';
 
 // Basic in-memory rate limiter (per serverless instance — good enough to
 // blunt casual abuse; for real protection pair with Vercel's own rate
